@@ -89,14 +89,7 @@ class Application(ttk.Frame):
         self.currentVal = int(inputVal)
 
     def opEqual(self, inputVal):
-        if self.op == '+':
-            self.currentVal = self.firstVal + self.firstVal
-        elif self.op == '-':
-            self.currentVal = self.firstVal - self.firstVal
-        elif self.op == 'x':
-            self.currentVal = self.firstVal * self.firstVal
-        elif self.op == '/':
-            self.currentVal = int(self.firstVal / self.firstVal)
+        self.currentVal = self.calOp(self.firstVal, self.op, self.firstVal)
 
     def number2Number(self, inputVal):
         self.currentVal = self.currentVal*10+int(inputVal)
@@ -135,7 +128,7 @@ class Application(ttk.Frame):
         elif op == 'x':
             currentVal = firstVal * currentVal
         elif op == '/':
-            currentVal = int(firstVal / currentVal)
+            currentVal = firstVal / currentVal
 
         return currentVal
 
