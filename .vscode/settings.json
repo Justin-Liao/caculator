@@ -1,0 +1,9 @@
+{
+  "[python]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  },
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "python.pythonPath": "C:\\Python\\3.9\\python.exe"
+}
