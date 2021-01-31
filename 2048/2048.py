@@ -208,7 +208,7 @@ class GameBoard:
 
 
 # boardSize = int(input("Please input gameboard size:"))
-boardSize = 5
+boardSize = 4
 
 Board = GameBoard(boardSize)
 
