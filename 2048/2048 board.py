@@ -28,8 +28,8 @@ class Application(ttk.Frame):
     def creatStyles(self):
         style = ttk.Style()
         style.configure('TLabel',
-                        background='#00FFFB',
-                        foreground='#FF00BB',
+                        background='#FFFFFF',
+                        foreground='#000000',
                         borderwidth='20',
                         bordercolor='#000000',
                         relief='solid',
