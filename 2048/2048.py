@@ -23,17 +23,36 @@ for box in line:
 
 import sys
 import random
+import tkinter as tk
+import tkinter.ttk as ttk
+
+FIT = (tk.NE, tk.SW)
+# size = int(input("Please input gameboard size:"))
+size = 4
 
 
 class Box:
     def __init__(self, value=-1):
         self.value = value
+        self.widget = None
 
     def print(self):
-        if self.value == -1:
-            print("      ", end='')
-        if self.value >= 2:
-            print("{:5d} ".format(self.value), end='')
+        if (self.widget):
+            if (self.value > 0):
+                self.widget['text'] = str(self.value)
+                self.widget['style'] = str(self.value) + ".TLabel"
+            else:
+                self.widget['text'] = ""
+                self.widget['style'] = "TLabel"
+
+    def setWidget(self, widget):
+        self.widget = widget
+
+    # def print(self):
+    #     if self.value == -1:
+    #         print("      ", end='')
+    #     if self.value >= 2:
+    #         print("{:5d} ".format(self.value), end='')
 
 
 class GameBoard:
@@ -53,17 +72,22 @@ class GameBoard:
         # self.boxes[0][0].set(2)
 
     def print(self):
-        for x in range(self.size):
-            print('———————' * self.size + '—')
-            # print('|      ' * self.size + '|') 空行
+        for row in range(self.size):
+            for column in range(self.size):
+                box = self.boxes[row][column]
+                box.print()
 
-            for y in range(self.size):
-                print('|', end='')
-                self.boxes[x][y].print()
-            print('|')
-            # print('|      ' * self.size + '|') 空行
+        # for x in range(self.size):
+        #     print('———————' * self.size + '—')
+        #     # print('|      ' * self.size + '|') 空行
 
-        print('———————' * self.size + '—')
+        #     for y in range(self.size):
+        #         print('|', end='')
+        #         self.boxes[x][y].print()
+        #     print('|')
+        #     # print('|      ' * self.size + '|') 空行
+
+        # print('———————' * self.size + '—')
 
     def randomBox(self):
         empty = []
@@ -170,47 +194,157 @@ class GameBoard:
     def start(self):
         self.randomBox()
         self.print()
-        self.detect()
 
-        while True:
+        # self.detect()
+        # while True:
 
-            if not self.detect():
-                print("GAME OVER")
-                break
+        #     if not self.detect():
+        #         print("GAME OVER")
+        #         break
 
-            print("")
-            instruction = input(
-                "a(left), d(right), s(down), w(up)\nPlease input instruction\n:")
+        #     print("")
+        #     instruction = input(
+        #         "a(left), d(right), s(down), w(up)\nPlease input instruction\n:")
 
-            # instruction = 'd'
-            if instruction == 'exit':
-                break
-            elif instruction == 'w':  # up
-                if self.mergeBoardUp():
-                    self.compact()
+        #     # instruction = 'd'
+        #     if instruction == 'exit':
+        #         break
+        #     elif instruction == 'w':  # up
+        #         if self.mergeBoardUp():
+        #             self.compact()
 
-            elif instruction == 'a':  # left
-                if self.mergeBoardLeft():
-                    self.compact()
+        #     elif instruction == 'a':  # left
+        #         if self.mergeBoardLeft():
+        #             self.compact()
 
-            elif instruction == 's':  # down
-                if self.mergeBoardDown():
-                    self.compact()
+        #     elif instruction == 's':  # down
+        #         if self.mergeBoardDown():
+        #             self.compact()
 
-            elif instruction == 'd':  # right
-                if self.mergeBoardRight():
-                    self.compact()
+        #     elif instruction == 'd':  # right
+        #         if self.mergeBoardRight():
+        #             self.compact()
 
-            elif instruction == '':
-                self.print()
-            else:
-                print("instruction wrong")
+        #     elif instruction == '':
+        #         self.print()
+        #     else:
+        #         print("instruction wrong")
 
 
-# boardSize = int(input("Please input gameboard size:"))
-boardSize = 4
+class Application(ttk.Frame):
 
-Board = GameBoard(boardSize)
+    def __init__(self, master=None):
+        super().__init__(master)
 
-Board.start()
-# Board.detect()
+        # config title, size and resizable
+        self.master.title('2048')
+        self.master.geometry('500x550')
+        self.master.resizable(False, False)
+
+        # set master 1x1
+        self.master.rowconfigure(0, weight=1)
+        self.master.columnconfigure(0, weight=1)
+
+        # set my self into parent's cell
+        self.grid(row=0, column=0, sticky=FIT)
+
+        # set size
+        self.gameBoard = GameBoard(size)
+
+        # creat style
+        self.creatStyles()
+
+        # creat sub widgets
+        self.createWidgets()
+
+        # bind the key press event
+        self.bind_all('<Key>', self.keypressHandler)
+
+        self.gameBoard.start()
+
+    def creatStyles(self):
+        style = ttk.Style()
+        style.configure('TLabel',
+                        background='#FFFFFF',
+                        foreground='#000000',
+                        bordercolor='#000000',
+                        borderwidth='20',
+                        relief='solid',
+                        anchor='centre',
+                        font='Helvetica 25')
+        style.configure("2.TLabel", background="khaki1")
+        style.configure("4.TLabel", background="khaki2")
+        style.configure("8.TLabel", background="LightPink1")
+        style.configure("16.TLabel", background="SeaGreen1")
+        style.configure("32.TLabel", background="lightBlue1")
+        style.configure("64.TLabel", background="lavender")
+        style.configure("128.TLabel", background="LightYellow2")
+        style.configure("256.TLabel", background="bisque1")
+        style.configure("512.TLabel", background="bisque2")
+        style.configure("1024.TLabel", background="bisque3")
+        style.configure("2048.TLabel", background="bisque4")
+
+    def createWidgets(self):
+        # set application's layout
+        self.rowconfigure(0, weight=1, uniform='2048')
+        self.rowconfigure(1, weight=10, uniform='2048')
+        self.columnconfigure(0, weight=1, uniform='2048')
+
+        # set upFrame's layout
+        upFrame = ttk.Frame(self)
+        upFrame.grid(row=0, column=0, sticky=FIT)
+
+        upFrame.columnconfigure(0, weight=1, uniform='upframe')
+        upFrame.columnconfigure(1, weight=4, uniform='upframe')
+        upFrame.rowconfigure(0, weight=1, uniform='upframe')
+
+        text = ttk.Label(upFrame, text='Score')
+        text.grid(row=0, column=0, sticky=FIT)
+
+        text = ttk.Label(upFrame, text='00000000')
+        text.grid(row=0, column=1, sticky=FIT)
+
+        # set lowerFrame's layout
+        lowerFrame = ttk.Frame(self)
+        lowerFrame.grid(row=1, column=0, sticky=FIT)
+        for row in range(size):
+            lowerFrame.rowconfigure(row, weight=1, uniform='lowerFrame')
+
+        for column in range(size):
+            lowerFrame.columnconfigure(column, weight=1, uniform='lowerFrame')
+
+        # creat children widgets
+        for row in range(size):
+            for column in range(size):
+                label = ttk.Label(lowerFrame)
+                label.grid(row=row, column=column, sticky=FIT)
+                label['text'] = 'empty'
+
+                self.gameBoard.boxes[row][column].setWidget(label)
+
+    def keypressHandler(self, event):
+        move = False
+        if (event.keysym == 'Left' or event.keysym == 'a'):
+            move = self.gameBoard.mergeBoardLeft()
+        elif (event.keysym == 'Right' or event.keysym == 'd'):
+            move = self.gameBoard.mergeBoardRight()
+        elif (event.keysym == 'Up' or event.keysym == 'w'):
+            move = self.gameBoard.mergeBoardUp()
+        elif (event.keysym == 'Down' or event.keysym == 's'):
+            move = self.gameBoard.mergeBoardDown()
+        else:
+            return
+        if move:
+            self.gameBoard.randomBox()
+            self.gameBoard.print()
+
+        print(event.keysym)
+
+
+if __name__ == '__main__':
+    app = Application()
+    app.mainloop()
+
+
+# Board = GameBoard(size)
+# Board.start()
