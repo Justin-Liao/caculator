@@ -25,6 +25,7 @@ import sys
 import random
 import tkinter as tk
 import tkinter.ttk as ttk
+import tkinter.messagebox as massagebox
 
 FIT = (tk.NE, tk.SW)
 # size = int(input("Please input gameboard size:"))
@@ -60,6 +61,7 @@ class GameBoard:
     def __init__(self, size):
         self.size = size
         self.boxes = []
+        self.score = 0
 
         for _row in range(size):
             row = []
@@ -91,13 +93,16 @@ class GameBoard:
 
     def randomBox(self):
         empty = []
+        inside = [2, 2, 4]
         for a in range(self.size):
             for b in range(self.size):
                 if self.boxes[a][b].value == -1:
                     empty.append(self.boxes[a][b])
         if len(empty) > 0:
             x = random.randint(0, (len(empty)-1))
-            empty[x].value = 2
+            n = inside[random.randint(0, 2)]
+            empty[x].value = n
+            self.score += n
 
     def compactLeft(self, line):
         result = False
@@ -169,38 +174,47 @@ class GameBoard:
         return result
 
     def detect(self):
-        game = False
+        gameover = True
         for box in self.boxes:
             for value in box:
                 if value.value == -1:
-                    game = True
-                    return game
+                    gameover = False
+                    return gameover
                 elif len(self.boxes) == 1:
-                    return game
+                    return gameover
 
         for row in range(self.size-1):
             for column in range(self.size-1):
                 if (self.boxes[row][column].value == self.boxes[row][column+1].value
                         or self.boxes[row][column].value == self.boxes[row+1][column].value):
-                    game = True
-                    return game
-        return game
+                    gameover = False
+                    return gameover
+        if (self.boxes[self.size-1][self.size-2].value == self.boxes[self.size-1][self.size-1].value
+                or self.boxes[self.size-2][self.size-1].value == self.boxes[self.size-1][self.size-1].value):
+            gameover = False
+            return gameover
+        return gameover
 
     def compact(self):
         if self.detect():
             self.randomBox()
             self.print()
 
+    def clear(self):
+        for row in range(size):
+            for column in range(size):
+                self.boxes[row][column].value = -1
+
     def start(self):
+        self.clear()
         self.randomBox()
         self.print()
-
         # self.detect()
-        # while True:
 
-        #     if not self.detect():
-        #         print("GAME OVER")
-        #         break
+        # if self.detect():
+        #     pass
+        # elif not self.detect():
+        #     print("GAME OVER")
 
         #     print("")
         #     instruction = input(
@@ -295,14 +309,20 @@ class Application(ttk.Frame):
         upFrame.grid(row=0, column=0, sticky=FIT)
 
         upFrame.columnconfigure(0, weight=1, uniform='upframe')
-        upFrame.columnconfigure(1, weight=4, uniform='upframe')
+        upFrame.columnconfigure(1, weight=3, uniform='upframe')
+        upFrame.columnconfigure(2, weight=1, uniform='upframe')
         upFrame.rowconfigure(0, weight=1, uniform='upframe')
 
         text = ttk.Label(upFrame, text='Score')
         text.grid(row=0, column=0, sticky=FIT)
 
-        text = ttk.Label(upFrame, text='00000000')
+        text = ttk.Label(upFrame, text=str(self.gameBoard.score))
         text.grid(row=0, column=1, sticky=FIT)
+
+        self.restart = tk.Button(upFrame, command=self.NewGame)
+        self.restart.grid(row=0, column=2, sticky=FIT)
+        self.restart['text'] = 'NewGame'
+        self.restart['font'] = 'Helvetica 15'
 
         # set lowerFrame's layout
         lowerFrame = ttk.Frame(self)
@@ -322,6 +342,11 @@ class Application(ttk.Frame):
 
                 self.gameBoard.boxes[row][column].setWidget(label)
 
+    def NewGame(self):
+        self.gameBoard.start()
+        # app = Application()
+        # app.mainloop()
+
     def keypressHandler(self, event):
         move = False
         if (event.keysym == 'Left' or event.keysym == 'a'):
@@ -332,13 +357,16 @@ class Application(ttk.Frame):
             move = self.gameBoard.mergeBoardUp()
         elif (event.keysym == 'Down' or event.keysym == 's'):
             move = self.gameBoard.mergeBoardDown()
-        else:
-            return
         if move:
             self.gameBoard.randomBox()
             self.gameBoard.print()
-
-        print(event.keysym)
+            print(event.keysym)
+        if self.gameBoard.detect():
+            if tk.messagebox.askokcancel(
+                    title='Gameover', message='Game Over'):
+                self.NewGame()
+            else:
+                pass
 
 
 if __name__ == '__main__':

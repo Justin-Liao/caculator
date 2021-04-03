@@ -127,8 +127,10 @@ class Application(ttk.Frame):
             currentVal = firstVal - currentVal
         elif op == 'x':
             currentVal = firstVal * currentVal
-        elif op == '/':
+        elif op == '/' and currentVal != 0:
             currentVal = firstVal / currentVal
+        else:
+            currentVal = 'Error'
 
         return currentVal
 
@@ -136,7 +138,7 @@ class Application(ttk.Frame):
         def action():
             self.inputEvent(intputVal)
             self.number.set(self.currentVal)
-
+            # the print below is just for testing the programs
             print('state: ' + self.stateName)
             print('firstVal: ' + str(self.firstVal))
             print('op: ' + self.op)
@@ -146,13 +148,13 @@ class Application(ttk.Frame):
 
     def createWidgets(self):
         self.number = tk.StringVar()
-        self.number.set('0')
+        self.number.set('0 ')
         style = ttk.Style()
         style.configure('Input.TLabel', background='#dbdbdb')
         style.configure('KeyPad.TLabel')  # foreground='lightblue'
 
         self.input = ttk.Entry(self, font=(
-            'calabri', 20, 'bold'), textvariable=self.number)
+            'calabri', 20, 'bold'), textvariable=self.number, justify='right')
         self.input.grid(row=0, column=0, sticky=FULL)
         self.input['style'] = 'Input.TLabel'
 
